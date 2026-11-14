@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>לומדים שעון עם צבי</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf6ff;--card:#fff;--ink:#1c2a4d;--mut:#586889;--hour:#2457e6;--min:#e07400;--shell:#2f9e5f;--face:#fffef8;--line:#cfe0f2;--ok:#17803d;--bad:#c9302c;--btn:#1f7a49;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a30;--card:#1b2745;--ink:#eef3ff;--mut:#a9b8d8;--hour:#7ea4ff;--min:#ffb347;--shell:#46c27a;--face:#22305a;--line:#33436e;--ok:#5fe08f;--bad:#ff8a85}}
+:root[data-theme="dark"]{--bg:#101a30;--card:#1b2745;--ink:#eef3ff;--mut:#a9b8d8;--hour:#7ea4ff;--min:#ffb347;--shell:#46c27a;--face:#22305a;--line:#33436e;--ok:#5fe08f;--bad:#ff8a85}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 18px/1.55 Rubik,"Arial Hebrew",Arial,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:28px;font-weight:800;margin:0 0 2px}
+.sub{margin:0;color:var(--mut)}
+button{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;cursor:pointer;min-height:48px}
+button:focus-visible{outline:3px solid var(--hour);outline-offset:2px}
+button.on,button.pri{background:var(--btn);border-color:var(--btn);color:#fff}
+button:disabled{cursor:default}
+.tabs{display:flex;gap:8px;margin:14px 0}
+.tabs button{flex:1;font-size:19px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:16px;margin-bottom:14px}
+.clock{max-width:360px;margin:0 auto;padding:7% 7% 5%}
+svg{display:block;width:100%;overflow:visible;touch-action:none;user-select:none;-webkit-user-select:none}
+.body{fill:var(--shell)}
+.rim{fill:var(--face);stroke:var(--shell);stroke-width:7}
+.tick{stroke:var(--mut);stroke-width:1}.tick.big{stroke:var(--ink);stroke-width:2}
+.num{font:800 15px Rubik,Arial,sans-serif;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.mn{font:600 6.5px Rubik,Arial,sans-serif;fill:var(--mut);text-anchor:middle;dominant-baseline:central;display:none}
+.showmin .mn{display:inline}
+.hand{transition:transform .6s cubic-bezier(.3,1.3,.5,1);transform-origin:100px 100px}
+.drag .hand{transition:none}
+@media (prefers-reduced-motion:reduce){.hand{transition:none}}
+.hand line{stroke-linecap:round}
+.hh{stroke:var(--hour);stroke-width:9}.mh{stroke:var(--min);stroke-width:5.5}
+.cap{fill:var(--ink)}
+.read{display:flex;align-items:baseline;justify-content:center;gap:14px;flex-wrap:wrap;margin:6px 0 2px}
+.dig{font-size:38px;font-weight:800;letter-spacing:1px}
+.say{font-size:22px;font-weight:700}
+.legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;font-size:16px;color:var(--mut);margin:6px 0}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-inline-end:6px}
+.hc{color:var(--hour);font-weight:800}.mc{color:var(--min);font-weight:800}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>button{flex:1 1 auto}
+.chk{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:8px;font-size:16px;color:var(--mut)}
+.chk input{width:22px;height:22px}
+.step{font-size:20px;margin:12px 0}
+.exs button{min-width:84px;font-size:20px}
+.exs{margin-top:8px}
+.opts{display:grid;gap:10px;margin-top:10px}
+.opt{display:flex;justify-content:space-between;align-items:center;font-size:24px;padding:12px 18px}
+.opt small{font-size:17px;color:var(--mut);font-weight:500}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,var(--card))}
+.q{font-size:22px;font-weight:700;text-align:center;margin:0 0 4px}
+.cnt{text-align:center;color:var(--mut);margin:0 0 4px;font-size:16px}
+.fb{min-height:34px;text-align:center;font-size:20px;font-weight:700;margin:10px 0 0}
+.fin{display:flex;justify-content:center;margin-top:8px;gap:8px}
+.big{font-size:56px;text-align:center;margin:8px 0}
+.mid{text-align:center}
+footer{font-size:14px;color:var(--mut);text-align:center;margin:18px 0 6px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>🐢 לומדים שעון עם צבי</h1>
+<p class="sub">הקליקו על המחוגים וגררו אותם. השעון הוא השריון של צבי!</p>
+<div class="tabs" role="tablist">
+  <button class="on" data-v="learn">למדו</button>
+  <button data-v="play">תרגלו</button>
+</div>
+
+<section id="learn">
+  <div class="card">
+    <div class="clock" id="lclock"></div>
+    <div class="read" aria-live="polite"><span class="dig" dir="ltr" id="ldig"></span><span class="say" id="lsay"></span></div>
+    <div class="legend"><span><i class="dot" style="background:var(--hour)"></i>מחוג קצר = שעות</span><span><i class="dot" style="background:var(--min)"></i>מחוג ארוך = דקות</span></div>
+    <label class="chk"><input type="checkbox" id="mnc"> הראו את מספרי הדקות</label>
+  </div>
+  <div class="card">
+    <div class="row" id="steps"></div>
+    <p class="step" id="stxt"></p>
+    <div class="row exs" id="exs"></div>
+  </div>
+</section>
+
+<section id="practice" hidden>
+  <div class="card" id="menu">
+    <p class="q">בחרו שלב</p>
+    <div class="opts">
+      <button class="opt" data-l="1">שלב 1 <small>שעות עגולות</small></button>
+      <button class="opt" data-l="2">שלב 2 <small>שעות עגולות וחצי</small></button>
+      <button class="opt" data-l="3">שלב 3 <small>גם רבעי שעה</small></button>
+    </div>
+  </div>
+  <div class="card" id="play" hidden>
+    <p class="cnt" id="cnt"></p>
+    <p class="q" id="q"></p>
+    <div class="clock" id="pclock"></div>
+    <div class="opts" id="opts"></div>
+    <div class="fin"><button class="pri" id="chk">בדקו</button></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="fin"><button class="pri" id="nx" hidden>הבא ←</button></div>
+  </div>
+  <div class="card" id="end" hidden>
+    <div class="big" id="stars"></div>
+    <p class="q" id="score"></p>
+    <div class="row">
+      <button class="pri" id="again">עוד סיבוב</button>
+      <button id="lvls">שלב אחר</button>
+      <button id="tolearn">חזרה ללימוד</button>
+    </div>
+  </div>
+</section>
+<footer>נוצר בהשראת נושא חוברת הכרת השעון של קולומבוס קידס. התוכן והתרגילים כאן מקוריים.</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const HN=["","אחת","שתיים","שלוש","ארבע","חמש","שש","שבע","שמונה","תשע","עשר","אחת עשרה","שתים עשרה"];
+const LN=HN.map((x,i)=>i?"ל"+x:x);
+const nx=h=>h%12+1;
+const say=(h,m)=>m==0?"השעה "+HN[h]:m==30?HN[h]+" וחצי":m==15?HN[h]+" ורבע":m==45?"רבע "+LN[nx(h)]:m<30?HN[h]+" ו-"+m+" דקות":(60-m)+" דקות "+LN[nx(h)];
+const dig=(h,m)=>String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+
+function Clock(el){
+  let s='<svg viewBox="0 0 200 200" role="img" aria-label="שעון מחוגים"><circle cx="100" cy="-4" r="17" class="body"/><circle cx="93" cy="-9" r="3.5" fill="#fff"/><circle cx="107" cy="-9" r="3.5" fill="#fff"/><circle cx="93" cy="-9" r="1.6" fill="#1c2a4d"/><circle cx="107" cy="-9" r="1.6" fill="#1c2a4d"/><path d="M93 1q7 6 14 0" fill="none" stroke="#1c2a4d" stroke-width="1.6" stroke-linecap="round"/>';
+  [[20,26],[180,26],[20,174],[180,174]].forEach(p=>s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="17" class="body"/>');
+  s+='<circle cx="100" cy="100" r="96" class="rim"/>';
+  for(let i=0;i<60;i++){const a=i*Math.PI/30,r=i%5?90:86;s+='<line class="tick'+(i%5?'':' big')+'" x1="'+(100+Math.sin(a)*r)+'" y1="'+(100-Math.cos(a)*r)+'" x2="'+(100+Math.sin(a)*92)+'" y2="'+(100-Math.cos(a)*92)+'"/>'}
+  for(let i=1;i<=12;i++){const a=i*Math.PI/6;s+='<text class="num" x="'+(100+Math.sin(a)*64)+'" y="'+(100-Math.cos(a)*64)+'">'+i+'</text><text class="mn" x="'+(100+Math.sin(a)*79)+'" y="'+(100-Math.cos(a)*79)+'">'+i*5+'</text>'}
+  s+='<g class="hand" id="h"><line class="hh" x1="100" y1="100" x2="100" y2="54"/></g><g class="hand" id="m"><line class="mh" x1="100" y1="100" x2="100" y2="26"/></g><circle class="cap" cx="100" cy="100" r="6"/></svg>';
+  el.innerHTML=s;
+  const svg=el.firstChild,hh=svg.querySelector("#h"),mh=svg.querySelector("#m");
+  hh.removeAttribute("id");mh.removeAttribute("id");
+  const C={H:12,M:0,on:false,cb:()=>{},set(h,m){C.H=h;C.M=m;upd()},mins(v){el.classList.toggle("showmin",v)}};
+  let ah=0,am=0,dr=null;
+  function upd(){
+    const th=(C.H%12)*30+C.M/2,tm=C.M*6;
+    ah+=((th-ah)%360+540)%360-180;am+=((tm-am)%360+540)%360-180;
+    hh.style.transform="rotate("+ah+"deg)";mh.style.transform="rotate("+am+"deg)";
+  }
+  function mv(e){
+    const b=svg.getBoundingClientRect(),dx=e.clientX-b.left-b.width/2,dy=e.clientY-b.top-b.height/2;
+    const ang=(Math.atan2(dx,-dy)*180/Math.PI+360)%360;
+    if(dr=="m"){
+      const n=Math.round(ang/30)*5%60;
+      if(C.M>=45&&n<=15)C.H=nx(C.H);else if(C.M<=15&&n>=45)C.H=(C.H+10)%12+1;
+      C.M=n;
+    }else C.H=(Math.round(((ang-C.M/2+360)%360)/30)%12)||12;
+    upd();C.cb(C.H,C.M);
+  }
+  svg.addEventListener("pointerdown",e=>{
+    if(!C.on)return;
+    const b=svg.getBoundingClientRect(),u=b.width/200;
+    const r=Math.hypot(e.clientX-b.left-b.width/2,e.clientY-b.top-b.height/2)/u;
+    dr=r<58?"h":"m";svg.setPointerCapture(e.pointerId);svg.classList.add("drag");mv(e);
+  });
+  svg.addEventListener("pointermove",e=>{if(dr)mv(e)});
+  const end=()=>{dr=null;svg.classList.remove("drag")};
+  svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+  upd();return C;
+}
+
+/* ---------- Learn ---------- */
+const L=Clock($("#lclock"));L.on=true;
+L.cb=(h,m)=>{$("#ldig").textContent=dig(h,m);$("#lsay").textContent=say(h,m)};
+const STEPS=[
+ {t:"המחוגים",x:"המחוג הקצר (הכחול) אומר איזו שעה. המחוג הארוך (הכתום) אומר כמה דקות. תפסו אותם וגררו! כשהמחוג הארוך עושה סיבוב שלם, עברה שעה והמחוג הקצר זז למספר הבא.",e:[[3,0],[8,20]]},
+ {t:"שעה עגולה",x:"כשהמחוג הארוך על 12, זו שעה עגולה. מסתכלים על המחוג הקצר ורואים איזו שעה. לחצו על דוגמה ואמרו את השעה בקול.",e:[[3,0],[7,0],[11,0]]},
+ {t:"חצי שעה",x:"כשהמחוג הארוך על 6, עברו 30 דקות: חצי שעה. אומרים את השעה ואז וחצי. שימו לב: המחוג הקצר עומד באמצע בין שני מספרים, הוא בדרך למספר הבא.",e:[[4,30],[9,30],[12,30]]},
+ {t:"רבע שעה",x:"כשהמחוג הארוך על 3, עברו 15 דקות: ורבע. כשהוא על 9, חסרות 15 דקות עד השעה הבאה: רבע ל... ועוד השעה הבאה.",e:[[6,15],[6,45],[2,45]]}
+];
+STEPS.forEach((s,i)=>{const b=document.createElement("button");b.textContent=(i+1)+". "+s.t;b.onclick=()=>step(i);$("#steps").append(b)});
+function step(i){
+  [...$("#steps").children].forEach((b,j)=>b.classList.toggle("on",i==j));
+  $("#stxt").textContent=STEPS[i].x;
+  const ex=$("#exs");ex.innerHTML="";
+  STEPS[i].e.forEach(t=>{const b=document.createElement("button");b.innerHTML='<span dir="ltr">'+dig(t[0],t[1])+'</span>';b.onclick=()=>{L.set(t[0],t[1]);L.cb(t[0],t[1])};ex.append(b)});
+  const t=STEPS[i].e[0];L.set(t[0],t[1]);L.cb(t[0],t[1]);
+}
+$("#mnc").onchange=e=>{L.mins(e.target.checked);P.mins(e.target.checked)};
+step(0);
+
+/* ---------- Practice ---------- */
+const P=Clock($("#pclock"));
+const LV=[[0],[0,30],[0,15,30,45]],N=8,rnd=n=>Math.floor(Math.random()*n),pick=a=>a[rnd(a.length)];
+let lvl=1,qi=0,sc=0,cur,done;
+const view=id=>["menu","play","end"].forEach(x=>$("#"+x).hidden=x!=id);
+function start(l){lvl=l;qi=0;sc=0;nextQ()}
+function nextQ(){
+  if(qi>=N){
+    $("#stars").textContent=sc==N?"🏆⭐⭐⭐":sc>=N*0.6?"⭐⭐":"⭐";
+    $("#score").textContent="ענית נכון על "+sc+" מתוך "+N;view("end");return;
+  }
+  qi++;done=false;view("play");
+  cur={h:1+rnd(12),m:pick(LV[lvl-1]),set:rnd(2)==1};
+  $("#fb").textContent="";$("#nx").hidden=true;$("#opts").innerHTML="";
+  $("#cnt").textContent="שאלה "+qi+" מתוך "+N;
+  $("#chk").hidden=!cur.set;
+  if(cur.set){
+    P.on=true;P.set(12,0);
+    $("#q").innerHTML='הציבו את המחוגים על <span dir="ltr">'+dig(cur.h,cur.m)+'</span> ('+say(cur.h,cur.m)+')';
+  }else{
+    P.on=false;P.set(cur.h,cur.m);$("#q").textContent="איזו שעה מראה השעון?";
+    const o=[[cur.h,cur.m]];
+    while(o.length<3){const c=[Math.random()<0.5?cur.h:1+rnd(12),pick(LV[lvl-1])];if(!o.some(x=>x[0]==c[0]&&x[1]==c[1]))o.push(c)}
+    o.sort(()=>Math.random()-0.5).forEach(t=>{
+      const b=document.createElement("button");b.className="opt";b.dataset.h=t[0];b.dataset.m=t[1];
+      b.innerHTML='<span dir="ltr">'+dig(t[0],t[1])+'</span><small>'+say(t[0],t[1])+'</small>';
+      b.onclick=()=>{if(done)return;const ok=t[0]==cur.h&&t[1]==cur.m;if(!ok)b.classList.add("bad");fin(ok)};
+      $("#opts").append(b);
+    });
+  }
+}
+function fin(ok){
+  done=true;P.on=false;if(ok)sc++;
+  $("#fb").textContent=ok?pick(["כל הכבוד! 🎉","מעולה! ⭐","בדיוק! 👏"]):"התשובה הנכונה: "+say(cur.h,cur.m);
+  $("#fb").style.color=ok?"var(--ok)":"var(--bad)";
+  $("#chk").hidden=true;$("#nx").hidden=false;
+  if(!ok&&cur.set)P.set(cur.h,cur.m);
+  document.querySelectorAll(".opt[data-h]").forEach(b=>{b.disabled=true;if(+b.dataset.h==cur.h&&+b.dataset.m==cur.m)b.classList.add("ok")});
+}
+$("#chk").onclick=()=>fin(P.H==cur.h&&P.M==cur.m);
+$("#nx").onclick=nextQ;
+document.querySelectorAll("#menu [data-l]").forEach(b=>b.onclick=()=>start(+b.dataset.l));
+$("#again").onclick=()=>start(lvl);
+$("#lvls").onclick=()=>view("menu");
+$("#tolearn").onclick=()=>tab("learn");
+
+/* ---------- Tabs ---------- */
+function tab(v){
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v==(v=="learn"?"learn":"play")));
+  $("#learn").hidden=v!="learn";$("#practice").hidden=v=="learn";
+  if(v!="learn")view("menu");
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>tab(b.dataset.v));
+</script>
+</body>
+</html>
